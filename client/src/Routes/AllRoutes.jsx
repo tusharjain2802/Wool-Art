@@ -15,7 +15,7 @@ function AllRoutes() {
         }
       />
 
-      <Route path="/list/:listName" element={
+      <Route path="/list/:rateListId" element={
         <PrivateLayout>
           <RateList />
         </PrivateLayout>

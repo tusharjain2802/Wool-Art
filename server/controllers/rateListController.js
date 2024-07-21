@@ -45,3 +45,74 @@ exports.deleteRateList = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
+
+// Get rate list details by ID
+exports.getRateListDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const rateList = await RateList.findOne({ rateListId: id });
+    if (!rateList) {
+      return res.status(404).json({ error: 'Rate list not found' });
+    }
+    res.json(rateList);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+// Add item to rate list
+exports.addItemToRateList = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { artNumber, rate } = req.body;
+    const rateList = await RateList.findOne({ rateListId: id });
+    if (!rateList) {
+      return res.status(404).json({ error: 'Rate list not found' });
+    }
+    rateList.items.push({ artNumber, rate });
+    await rateList.save();
+    res.status(201).json(rateList);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+// Update item in rate list
+exports.updateItemInRateList = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { index, artNumber, rate } = req.body;
+    const rateList = await RateList.findOne({ rateListId: id });
+    if (!rateList) {
+      return res.status(404).json({ error: 'Rate list not found' });
+    }
+    if (index < 0 || index >= rateList.items.length) {
+      return res.status(400).json({ error: 'Invalid item index' });
+    }
+    rateList.items[index] = { artNumber, rate };
+    await rateList.save();
+    res.status(200).json(rateList);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+// Delete item from rate list
+exports.deleteItemFromRateList = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { index } = req.body;
+    const rateList = await RateList.findOne({ rateListId: id });
+    if (!rateList) {
+      return res.status(404).json({ error: 'Rate list not found' });
+    }
+    if (index < 0 || index >= rateList.items.length) {
+      return res.status(400).json({ error: 'Invalid item index' });
+    }
+    rateList.items.splice(index, 1); // Remove the item from the array
+    await rateList.save();
+    res.status(200).json(rateList);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};

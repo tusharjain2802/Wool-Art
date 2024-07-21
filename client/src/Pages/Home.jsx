@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import {useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const RateListPage = () => {
   const [rateLists, setRateLists] = useState([]);
@@ -9,7 +9,7 @@ const RateListPage = () => {
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [newRateListName, setNewRateListName] = useState('');
-  const navigate = useNavigate();
+  const navigate= useNavigate();
 
   useEffect(() => {
     fetchRateLists();
@@ -46,7 +46,7 @@ const RateListPage = () => {
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/create-rate-list`, { rateListName: newRateListName });
       if (response.status === 201) {
         toast.success("Rate List Added Successfully")
-        navigate(`/list/${newRateListName}`);
+        fetchRateLists();
       }
     } catch (error) {
       console.error('Error creating rate list:', error);
@@ -76,7 +76,7 @@ const RateListPage = () => {
             {rateLists.length > 0 ? (
               rateLists.map((list) => (
                 <tr key={list.rateListId}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{list.rateListName}</td>
+                  <td onClick={()=>navigate(`/list/${list.rateListId}`)} className="px-6 py-4 cursor-pointer whitespace-nowrap text-sm font-medium text-gray-900">{list.rateListName}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
                       className="text-red-600 hover:text-red-900"
