@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import {useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const RateListPage = () => {
   const [rateLists, setRateLists] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
   const [showAddPopup, setShowAddPopup] = useState(false);
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [newRateListName, setNewRateListName] = useState('');
   const navigate = useNavigate();
 
@@ -23,10 +25,17 @@ const RateListPage = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async () => {
     try {
-      await axios.post(`/api/delete-list/${id}`);
-      setRateLists(rateLists.filter((list) => list.id !== id));
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/delete-list/${deleteId}`);
+      console.log(response);
+      if(response.status === 200){
+        toast.success(response.data.message);
+        setShowDeletePopup(false);
+        fetchRateLists();
+      }else{
+        toast.error(response.data.message);
+      }
     } catch (error) {
       console.error('Error deleting rate list:', error);
     }
@@ -34,9 +43,10 @@ const RateListPage = () => {
 
   const handleAddRateList = async () => {
     try {
-      const response = await axios.post('/api/create-rate-list', { name: newRateListName });
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/create-rate-list`, { rateListName: newRateListName });
       if (response.status === 201) {
-        navigate(`/${newRateListName}`);
+        toast.success("Rate List Added Successfully")
+        navigate(`/list/${newRateListName}`);
       }
     } catch (error) {
       console.error('Error creating rate list:', error);
@@ -65,12 +75,12 @@ const RateListPage = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {rateLists.length > 0 ? (
               rateLists.map((list) => (
-                <tr key={list.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{list.name}</td>
+                <tr key={list.rateListId}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{list.rateListName}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
                       className="text-red-600 hover:text-red-900"
-                      onClick={() => setDeleteId(list.id)}
+                      onClick={() =>{setShowDeletePopup(true); setDeleteId(list.rateListId)}}
                     >
                       Delete
                     </button>
@@ -85,7 +95,7 @@ const RateListPage = () => {
           </tbody>
         </table>
       </div>
-      {deleteId && (
+      {showDeletePopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow">
             <h2 className="text-lg font-bold mb-4">Confirm Deletion</h2>
@@ -93,16 +103,13 @@ const RateListPage = () => {
             <div className="flex justify-end mt-4">
               <button
                 className="bg-gray-500 text-white px-4 py-2 rounded mr-2"
-                onClick={() => setDeleteId(null)}
+                onClick={() => setShowDeletePopup(false)}
               >
                 Cancel
               </button>
               <button
                 className="bg-red-500 text-white px-4 py-2 rounded"
-                onClick={() => {
-                  handleDelete(deleteId);
-                  setDeleteId(null);
-                }}
+                onClick={handleDelete}
               >
                 Confirm
               </button>

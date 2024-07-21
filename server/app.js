@@ -1,22 +1,21 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const app = express();
-
-const contactRoutes = require('./routes/contactRoutes');
-
+const connectDB = require('./config/db');
+const rateListRoutes = require('./routes/rateListRoutes');
 
 require('dotenv').config();
 
-// Use the CORS middleware
+const app = express();
+
+connectDB();
+
 const allowedOrigins = [
     'http://localhost:5173',
 ];
 
 app.use(cors({
     origin: function (origin, callback) {
-        // allow requests with no origin
-        // (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
         if (allowedOrigins.indexOf(origin) === -1) {
             const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
@@ -32,7 +31,7 @@ app.use(bodyParser.json());
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
-app.use('/api/contact', contactRoutes);
+app.use('/api', rateListRoutes);
 
 app.get('/', async (req, res) => {
     res.send('Welcome to BV Jain Shawls, Chaura Bazaar, Ludhiana');
