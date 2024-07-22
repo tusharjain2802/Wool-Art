@@ -25,3 +25,26 @@ exports.getAllBills = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
+
+exports.deleteBill = async (req, res) => {
+  const { billId } = req.params;
+  try {
+    await Bill.findOneAndDelete({ billId });
+    res.status(200).json({ message: 'Bill deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.getBillDetails = async (req, res) => {
+  const { billId } = req.params;
+  try {
+    const bill = await Bill.findOne({ billId:billId });
+    if (!bill) {
+      return res.status(404).json({ error: 'Bill not found' });
+    }
+    res.status(200).json(bill);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};

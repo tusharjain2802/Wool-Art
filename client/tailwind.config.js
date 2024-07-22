@@ -8,22 +8,13 @@ export default {
     screens: {
       'customBreakPointSm': '400px',
       'sm': '640px',
-      // => @media (min-width: 640px) { ... }
-
       'md': '768px',
-      // => @media (min-width: 768px) { ... }
-
       'lg': '1024px',
-      // => @media (min-width: 1024px) { ... }
-
       'xl': '1280px',
-      // => @media (min-width: 1280px) { ... }
-
       '2xl': '1536px',
-      // => @media (min-width: 1536px) { ... }
     },
     extend: {
-      transform: { // this is for adding perspective
+      transform: { 
         'perspective-1000': 'perspective(1000px)',
       },
       transformStyle: {
@@ -32,10 +23,7 @@ export default {
       perspective: {
         '1000': '1000px',
       },
-      colors: {
-        customGold: '#b3a058',
-
-      },
+      
       fontFamily: {
         'poppins': ['poppins', 'sans-serif'],
         'anton': ['Anton', 'sans-serif'],

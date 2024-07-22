@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
 
 const billSchema = new mongoose.Schema({
+  billId: {
+    type: String,
+    default: uuidv4,
+    unique: true,
+  },
   date: {
     type: Date,
     default: Date.now,

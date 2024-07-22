@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { MdDelete } from "react-icons/md";
 
 const BillsPage = () => {
   const [rateLists, setRateLists] = useState([]);
@@ -159,7 +160,7 @@ const BillsPage = () => {
                       className="text-red-600 hover:text-red-900"
                       onClick={() => handleDeleteItem(index)}
                     >
-                      Delete
+                      <MdDelete size={21}/>
                     </button>
                   </td>
                 </tr>

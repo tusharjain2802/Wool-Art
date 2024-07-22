@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { MdDelete } from "react-icons/md";
 import moment from 'moment';
+import toast from 'react-hot-toast';
 
 const BillsPage = () => {
   const [bills, setBills] = useState([]);
@@ -17,6 +19,20 @@ const BillsPage = () => {
       setBills(response.data);
     } catch (error) {
       console.error('Error fetching bills:', error);
+    }
+  };
+
+  const deleteBill = async (billId) => {
+    try {
+      const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/bill/delete/${billId}`);
+      if(response.status ===200){
+        toast.success("Deleted successfully");
+      }else{
+        toast.error("Some error occured");
+      }
+      setBills((prevBills) => prevBills.filter((bill) => bill.billId !== billId));
+    } catch (error) {
+      console.error('Error deleting bill:', error);
     }
   };
 
@@ -36,8 +52,14 @@ const BillsPage = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <main className="flex-grow p-8">
-        <div className="mb-4">
+        <div className="mb-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold">Bills</h1>
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+            onClick={() => navigate('/generate-bill')}
+          >
+            Generate Bill
+          </button>
         </div>
         <div className="bg-white shadow rounded p-4 mb-4">
           {Object.keys(groupedBills).map((date) => (
@@ -54,6 +76,7 @@ const BillsPage = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -61,7 +84,7 @@ const BillsPage = () => {
                     <tr
                       key={bill._id}
                       className="hover:bg-gray-100 cursor-pointer"
-                      onClick={() => navigate(`/bill-details/${bill._id}`)}
+                      onClick={() => navigate(`/bill-details/${bill.billId}`)}
                     >
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {moment(bill.date).format('hh:mm A')}
@@ -70,7 +93,18 @@ const BillsPage = () => {
                         {bill.items.reduce((acc, item) => acc + item.quantity, 0)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{bill.discount}%</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${bill.total.toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"> ₹{bill.total.toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button
+                          className="text-red-600 flex justify-center hover:text-red-900"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteBill(bill.billId);
+                          }}
+                        >
+                          <MdDelete size={21} />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
