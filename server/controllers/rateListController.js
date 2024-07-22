@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 // Get all rate list names
 exports.getRateLists = async (req, res) => {
   try {
-    const rateLists = await RateList.find().select('rateListName rateListId');
+    const rateLists = await RateList.find({});
     res.json(rateLists);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });

@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const connectDB = require('./config/db');
 const rateListRoutes = require('./routes/rateListRoutes');
+const billRoutes = require('./routes/billRoutes');
 
 require('dotenv').config();
 
@@ -32,6 +33,7 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
 app.use('/api', rateListRoutes);
+app.use('/api/bill', billRoutes);
 
 app.get('/', async (req, res) => {
     res.send('Welcome to BV Jain Shawls, Chaura Bazaar, Ludhiana');

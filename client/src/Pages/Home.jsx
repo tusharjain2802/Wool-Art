@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { MdDelete } from "react-icons/md";
 
 const RateListPage = () => {
   const [rateLists, setRateLists] = useState([]);
@@ -47,6 +48,7 @@ const RateListPage = () => {
       if (response.status === 201) {
         toast.success("Rate List Added Successfully")
         fetchRateLists();
+        setShowAddPopup(false);
       }
     } catch (error) {
       console.error('Error creating rate list:', error);
@@ -82,7 +84,7 @@ const RateListPage = () => {
                       className="text-red-600 hover:text-red-900"
                       onClick={() =>{setShowDeletePopup(true); setDeleteId(list.rateListId)}}
                     >
-                      Delete
+                      <MdDelete size={21}/>
                     </button>
                   </td>
                 </tr>
