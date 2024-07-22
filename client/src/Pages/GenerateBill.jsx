@@ -147,7 +147,7 @@ const BillsPage = () => {
                       value={item.quantity}
                       onChange={(e) => handleQuantityChange(index, parseInt(e.target.value))}
                     >
-                      {[...Array(10).keys()].map((num) => (
+                      {[...Array(40).keys()].map((num) => (
                         <option key={num + 1} value={num + 1}>
                           {num + 1}
                         </option>
