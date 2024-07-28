@@ -3,12 +3,15 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { MdDelete } from "react-icons/md";
 
-const BillsPage = () => {
+const GenerateBillPage = () => {
   const [rateLists, setRateLists] = useState([]);
   const [selectedRateList, setSelectedRateList] = useState(null);
   const [artNumber, setArtNumber] = useState('');
   const [billItems, setBillItems] = useState([]);
   const [discount, setDiscount] = useState(0);
+  const [customerName, setCustomerName] = useState('');
+  const [isPaid, setIsPaid] = useState(false);
+  const [advance, setAdvance] = useState(0);
 
   useEffect(() => {
     fetchRateLists();
@@ -23,7 +26,6 @@ const BillsPage = () => {
       console.error('Error fetching rate lists:', error);
     }
   };
-
 
   const handleAddItem = () => {
     if (!selectedRateList) return;
@@ -54,32 +56,45 @@ const BillsPage = () => {
     setDiscount(percentage);
   };
 
-  const getTotal = () => {
-    const sum = billItems.reduce((acc, item) => acc + item.total, 0);
+  const getTotalBeforeDiscount = () => {
+    return billItems.reduce((acc, item) => acc + item.total, 0);
+  };
+
+  const getTotalAfterDiscount = () => {
+    const sum = getTotalBeforeDiscount();
     return sum - (sum * discount) / 100;
+  };
+
+  const getPendingBalance = () => {
+    return getTotalAfterDiscount() - advance;
   };
 
   const handleSaveBill = async () => {
     try {
-      const total = getTotal();
+      const total = getTotalAfterDiscount();
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/bill/save`, {
+        customerName,
         rateListName: selectedRateList.rateListName,
         items: billItems,
         discount,
         total,
+        isPaid,
+        advance: isPaid ? total : advance,
+        pendingBalance: isPaid ? 0 : getPendingBalance(),
       });
       if (response.status === 201) {
         toast.success('Bill saved successfully');
         setBillItems([]);
         setDiscount(0);
         setSelectedRateList(null);
-      }
-      else{
+        setCustomerName('');
+        setIsPaid(false);
+        setAdvance(0);
+      } else {
         console.log(response);
       }
     } catch (error) {
       toast.error('Error saving bill:', error);
-    //   alert('Error saving bill');
     }
   };
 
@@ -90,6 +105,15 @@ const BillsPage = () => {
           <h1 className="text-2xl font-bold">Generate Bill</h1>
         </div>
         <div className="bg-white shadow rounded p-4 mb-4">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Customer Name</label>
+            <input
+              type="text"
+              className="border p-2 w-full"
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+            />
+          </div>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">Select Rate List</label>
             <select
@@ -160,13 +184,34 @@ const BillsPage = () => {
                       className="text-red-600 hover:text-red-900"
                       onClick={() => handleDeleteItem(index)}
                     >
-                      <MdDelete size={21}/>
+                      <MdDelete size={21} />
                     </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          <div className="mt-4">
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={isPaid}
+                onChange={(e) => setIsPaid(e.target.checked)}
+              />
+              <span className="text-sm">Paid</span>
+            </label>
+            {!isPaid && (
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Advance</label>
+                <input
+                  type="number"
+                  className="border p-2 w-full"
+                  value={advance}
+                  onChange={(e) => setAdvance(parseFloat(e.target.value))}
+                />
+              </div>
+            )}
+          </div>
           <div className="mt-4 flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <button
@@ -195,8 +240,19 @@ const BillsPage = () => {
               />
             </div>
             <div>
-              <span className="text-lg font-bold">Total: ₹{getTotal()}</span>
+              <div>
+                <span className="text-lg font-bold">Total: ₹{getTotalBeforeDiscount()}</span>
+              </div>
+              <div>
+                <span className="text-lg mt-2 font-bold">Discounted Total: ₹{getTotalAfterDiscount()}</span>
+              </div>
+              {!isPaid && (
+                <div className="mt-2">
+                  <span className="text-lg font-bold">Pending Balance: ₹{getPendingBalance()}</span>
+                </div>
+              )}
             </div>
+
           </div>
           <div className="mt-4">
             <button
@@ -212,4 +268,4 @@ const BillsPage = () => {
   );
 };
 
-export default BillsPage;
+export default GenerateBillPage;

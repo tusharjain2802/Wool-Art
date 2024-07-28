@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useReactToPrint } from 'react-to-print';
-
+import logo from "../assets/images/bvjain_logo.png"
 
 const BillDetailsPage = () => {
   const { billId } = useParams();
@@ -30,18 +30,25 @@ const BillDetailsPage = () => {
 
   const totalAmount = bill?.items?.reduce((acc, item) => acc + item.total, 0);
   const discountAmount = (totalAmount * bill.discount) / 100;
-  const amountToBePaid = totalAmount - discountAmount;
+  const amountToBePaid = totalAmount - discountAmount - bill.advance;
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <main className="flex-grow p-8">
         <div ref={componentRef} className="bg-white p-6 shadow-md rounded-md">
-          <h1 className="text-2xl font-bold text-center mb-4">Invoice</h1>
-          <div className="text-center mb-4">
-            <p className="text-lg font-semibold italic">WoolArt <span className='not-italic '>Beshesher Dass Fateh Chand Jain</span></p>
-            <p>{new Date(bill.date).toLocaleDateString()}</p>
-            <p>{new Date(bill.date).toLocaleTimeString()}</p>
+
+          <div className="flex justify-between mb-4">
+            <div>
+            <h1 className="text-2xl font-bold mb-4">Invoice</h1>
+            <p>{new Date(bill.createdAt).toLocaleDateString()}</p>
+            <p>{new Date(bill.createdAt).toLocaleTimeString()}</p>
+            <p className="text-lg font-semibold">Customer Name: {bill.customerName}</p>
+            </div>
+            <div>
+              <img className='w-[170px] ' draggable="false" src={logo} />
+            </div>
           </div>
+
           <hr className="my-4" />
           <table className="min-w-full divide-y divide-gray-200 mb-4">
             <thead className="bg-gray-50">
@@ -67,13 +74,28 @@ const BillDetailsPage = () => {
           </table>
           <hr className="my-4" />
           <div className="flex justify-between mb-4">
-            <span>Discount:</span>
-            <span>{bill.discount}%</span>
+            <span>Total:</span>
+            <span>₹{totalAmount.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between mb-4">
-            <span>Discount Amount:</span>
-            <span>₹{discountAmount.toFixed(2)}</span>
-          </div>
+          {bill.discount > 0 && (
+            <>
+              <div className="flex justify-between mb-4">
+                <span>Discount:</span>
+                <span>{bill.discount}%</span>
+              </div>
+              <div className="flex justify-between mb-4">
+                <span>Discount Amount:</span>
+                <span>₹{discountAmount.toFixed(2)}</span>
+              </div>
+            </>
+          )}
+          {!bill.isPaid && (
+            <div className="flex justify-between mb-4">
+              <span>Advance:</span>
+              <span>₹{bill.advance.toFixed(2)}</span>
+            </div>
+
+          )}
           <hr className="my-4" />
           <div className="flex justify-between mb-4 font-bold">
             <span>Amount to be Paid:</span>

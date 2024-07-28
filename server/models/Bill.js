@@ -2,14 +2,14 @@ const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
 
 const billSchema = new mongoose.Schema({
+  customerName: { 
+    type: String, 
+    required: true 
+  },
   billId: {
     type: String,
     default: uuidv4,
     unique: true,
-  },
-  date: {
-    type: Date,
-    default: Date.now,
   },
   rateListName: {
     type: String,
@@ -31,6 +31,18 @@ const billSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-});
+  isPaid: { 
+    type: Boolean, 
+    required: true 
+  },
+  advance: { 
+    type: Number, 
+    default: 0 
+  },
+  pendingBalance: { 
+    type: Number, 
+    default: 0 
+  },
+}, { timestamps: true });
 
 module.exports = mongoose.model('Bill', billSchema);

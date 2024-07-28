@@ -25,10 +25,10 @@ const BillsPage = () => {
   const deleteBill = async (billId) => {
     try {
       const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/bill/delete/${billId}`);
-      if(response.status ===200){
+      if(response.status === 200){
         toast.success("Deleted successfully");
       }else{
-        toast.error("Some error occured");
+        toast.error("Some error occurred");
       }
       setBills((prevBills) => prevBills.filter((bill) => bill.billId !== billId));
     } catch (error) {
@@ -38,7 +38,7 @@ const BillsPage = () => {
 
   const groupBillsByDate = (bills) => {
     return bills.reduce((grouped, bill) => {
-      const date = moment(bill.date).format('YYYY-MM-DD');
+      const date = moment(bill.createdAt).format('YYYY-MM-DD');
       if (!grouped[date]) {
         grouped[date] = [];
       }
@@ -73,9 +73,11 @@ const BillsPage = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                   </tr>
                 </thead>
@@ -87,13 +89,17 @@ const BillsPage = () => {
                       onClick={() => navigate(`/bill-details/${bill.billId}`)}
                     >
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {moment(bill.date).format('hh:mm A')}
+                        {moment(bill.createdAt).format('hh:mm A')}
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{bill.customerName}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {bill.items.reduce((acc, item) => acc + item.quantity, 0)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{bill.discount}%</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"> ₹{bill.total.toFixed(2)}</td>
+                      <td className={`px-6 py-4 whitespace-nowrap font-[500] text-sm ${bill.isPaid ? 'text-green-500' : 'text-red-500 '} `}>
+                        {bill.isPaid ? 'Paid' : `Pending: ₹${bill.pendingBalance.toFixed(2)}`}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
                           className="text-red-600 flex justify-center hover:text-red-900"
