@@ -85,14 +85,14 @@ const BillDetailsPage = () => {
               </div>
               <div className="flex justify-between mb-4">
                 <span>Discount Amount:</span>
-                <span>₹{discountAmount.toFixed(2)}</span>
+                <span>-₹{discountAmount.toFixed(2)}</span>
               </div>
             </>
           )}
           {!bill.isPaid && (
             <div className="flex justify-between mb-4">
               <span>Advance:</span>
-              <span>₹{bill.advance.toFixed(2)}</span>
+              <span>-₹{bill.advance.toFixed(2)}</span>
             </div>
 
           )}

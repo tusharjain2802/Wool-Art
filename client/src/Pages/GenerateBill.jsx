@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { MdDelete } from "react-icons/md";
+import { useNavigate, useParams } from 'react-router-dom';
 
 const GenerateBillPage = () => {
+  const { billId } = useParams();
   const [rateLists, setRateLists] = useState([]);
+  const [res1, setRes1] = useState(false);
   const [selectedRateList, setSelectedRateList] = useState(null);
   const [artNumber, setArtNumber] = useState('');
   const [billItems, setBillItems] = useState([]);
@@ -12,20 +15,44 @@ const GenerateBillPage = () => {
   const [customerName, setCustomerName] = useState('');
   const [isPaid, setIsPaid] = useState(false);
   const [advance, setAdvance] = useState(0);
-
+  const navigate = useNavigate();
   useEffect(() => {
     fetchRateLists();
-  }, []);
+    if (billId && res1) {
+      fetchBillDetails();
+    }
+  }, [billId, res1]);
 
   const fetchRateLists = async () => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/rate-lists`);
       const data = Array.isArray(response.data) ? response.data : [];
       setRateLists(data);
+      setRes1(true);
     } catch (error) {
       console.error('Error fetching rate lists:', error);
     }
   };
+
+  const fetchBillDetails = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/bill/details/${billId}`);
+      const { customerName, rateListName, items, discount, isPaid, advance } = response.data;
+      setCustomerName(customerName);
+      setDiscount(discount);
+      setIsPaid(isPaid);
+      setAdvance(advance);
+      const selectedList = rateLists.find(list => list.rateListName === rateListName);
+      setSelectedRateList(selectedList);
+      setBillItems(items.map(item => ({
+        ...item,
+        total: item.rate * item.quantity,
+      })));
+    } catch (error) {
+      console.error('Error fetching bill details:', error);
+    }
+  };
+
 
   const handleAddItem = () => {
     if (!selectedRateList) return;
@@ -69,6 +96,37 @@ const GenerateBillPage = () => {
     return getTotalAfterDiscount() - advance;
   };
 
+  const handleSaveEditBill = async()=>{
+    if(billId){
+      handleEditBill();
+    }else{
+      handleSaveBill();
+    }
+  }
+
+  const handleEditBill = async() => {
+    try {
+      const total = getTotalAfterDiscount();
+      const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/bill/edit/${billId}`, {
+        customerName,
+        rateListName: selectedRateList.rateListName,
+        items: billItems,
+        discount,
+        total,
+        isPaid,
+        advance: isPaid ? 0 : advance,
+        pendingBalance: isPaid ? 0 : getPendingBalance(),
+      });
+      if (response.status === 200) {
+        toast.success('Bill updated successfully');
+      } else {
+        console.log(response);
+      }
+    } catch (error) {
+      toast.error('Error updating bill:', error);
+    }
+  };
+
   const handleSaveBill = async () => {
     try {
       const total = getTotalAfterDiscount();
@@ -79,8 +137,8 @@ const GenerateBillPage = () => {
         discount,
         total,
         isPaid,
-        advance: isPaid ? total : advance,
-        pendingBalance: isPaid ? 0 : getPendingBalance(),
+        advance: isPaid ? 0 : advance,
+        pendingBalance: isPaid ? total : getPendingBalance(),
       });
       if (response.status === 201) {
         toast.success('Bill saved successfully');
@@ -90,6 +148,7 @@ const GenerateBillPage = () => {
         setCustomerName('');
         setIsPaid(false);
         setAdvance(0);
+        navigate("/bills")
       } else {
         console.log(response);
       }
@@ -102,7 +161,7 @@ const GenerateBillPage = () => {
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <main className="flex-grow p-8">
         <div className="mb-4">
-          <h1 className="text-2xl font-bold">Generate Bill</h1>
+          <h1 className="text-2xl font-bold">{billId?"Edit Bill" :"Generate Bill"}</h1>
         </div>
         <div className="bg-white shadow rounded p-4 mb-4">
           <div className="mb-4">
@@ -257,9 +316,9 @@ const GenerateBillPage = () => {
           <div className="mt-4">
             <button
               className="bg-green-500 text-white px-4 py-2 rounded"
-              onClick={handleSaveBill}
+              onClick={handleSaveEditBill}
             >
-              Save Bill
+              {billId?"Edit Bill":"Save Bill"}
             </button>
           </div>
         </div>

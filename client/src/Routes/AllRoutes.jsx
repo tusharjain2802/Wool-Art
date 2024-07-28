@@ -30,6 +30,12 @@ function AllRoutes() {
         </PrivateLayout>
       } />
 
+      <Route path="/edit-bill/:billId" element={
+        <PrivateLayout>
+          <GenerateBill />
+        </PrivateLayout>
+      } />
+
       <Route path="bills" element={
         <PrivateLayout>
           <Bills />

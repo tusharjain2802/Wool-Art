@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { MdDelete } from "react-icons/md";
+import { FaEdit } from "react-icons/fa";
 import moment from 'moment';
 import toast from 'react-hot-toast';
 
@@ -100,9 +101,18 @@ const BillsPage = () => {
                       <td className={`px-6 py-4 whitespace-nowrap font-[500] text-sm ${bill.isPaid ? 'text-green-500' : 'text-red-500 '} `}>
                         {bill.isPaid ? 'Paid' : `Pending: ₹${bill.pendingBalance.toFixed(2)}`}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="px-6 py-4 z-20 flex justify-center gap-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        className="text-blue-600 hover:text-blue-900"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/edit-bill/${bill.billId}`)
+                        }}
+                      >
+                        <FaEdit size={21} />
+                      </button>
                         <button
-                          className="text-red-600 flex justify-center hover:text-red-900"
+                          className="text-red-600 hover:text-red-900"
                           onClick={(e) => {
                             e.stopPropagation();
                             deleteBill(bill.billId);
