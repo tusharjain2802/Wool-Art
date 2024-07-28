@@ -115,7 +115,7 @@ const GenerateBillPage = () => {
         total,
         isPaid,
         advance: isPaid ? 0 : advance,
-        pendingBalance: isPaid ? 0 : getPendingBalance(),
+        pendingBalance: isPaid ? total : getPendingBalance(),
       });
       if (response.status === 200) {
         toast.success('Bill updated successfully');
