@@ -9,7 +9,7 @@ const ItemSchema = new mongoose.Schema({
     type: Number,
     required: true
   }
-});
+}, { _id: false });
 
 const RateListSchema = new mongoose.Schema({
   rateListName: {
